@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-
  Class Func:
     def __init__(self, out_dir, lat_dim, trans):
         self.out_dir = out_dir
