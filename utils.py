@@ -1,4 +1,7 @@
-
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import numpy as np
+import os
 
 
  Class Func:
@@ -30,17 +33,17 @@
         e = tf.random.normal([x.shape[0], lat_dim], 0, gam)
         return self.trans([x, e], training=False)
 
-    def plot_images(model, epoch, sample_input, n_steps, n_examples, gam):
+    def plot_images(model, epoch, sample_input, n_examples, gam):
         tf.random.set_seed(10)
         generated_images = model(sample_input, gam)
 
         fig = plt.figure(figsize=(n_examples, 1.1 * n_steps))
         for j in range(n_examples):
-            plt.subplot(n_steps+1, n_examples, j + 1)
+            plt.subplot(2, n_examples, j + 1)
             plt.imshow(tf.squeeze(sample_input[j]) * 127.5 + 127.5, cmap='gray')
             plt.axis('off')  
 
-            plt.subplot(n_steps+1, n_examples, n_examples + j + 1)
+            plt.subplot(2, n_examples, n_examples + j + 1)
             plt.imshow(tf.squeeze(generated_images[j]) * 127.5 + 127.5, cmap='gray')
             plt.axis('off')   
 
