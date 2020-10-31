@@ -22,12 +22,13 @@ EPOCHS = 300
 LATENT_DIM = 30
 HIDDEN_DIM = 2000
 SIGMA = 1.
+NUM_EXAMPLES = 20
 
 makedirs(args.out_dir, exist_ok=True)
 
 # Load data
-(train_images, train_labels), (_, _) = tf.keras.datasets.mnist.load_data()
-train_images = train_images.reshape(train_images.shape[0], 28, 28, 1).astype('float32')
+(train_images, train_labels), (_, _) = tf.keras.datasets.cifar10.load_data()
+train_images = train_images.astype('float32')
 train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
 
 # Define models
@@ -44,8 +45,6 @@ d_aae_optimizer = tf.keras.optimizers.Adam(1e-4)
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
 # Checkpoint
-# makedirs(os.path.join(args.out_dir, 'aae_checkpoints'), exist_ok=True)
-# checkpoint_dir = os.path.join(args.out_dir, 'aae_checkpoints')
 aae_ckpt_dir = './aae_checkpoints'
 aae_ckpt_prefix = os.path.join(aae_ckpt_dir, "aae_ckpt")
 aae_checkpoint = tf.train.Checkpoint(ae_optimizer=ae_optimizer, enc_optimizer=enc_optimizer, d_aae_optimizer=d_aae_optimizer,
@@ -85,12 +84,27 @@ def train_step_aae(batch_x):
     return ae_loss, enc_loss, d_aae_loss
 
 def train_aae(dataset, n_epoch):
+    seed_images = train_images[0:NUM_EXAMPLES]
+    next_images = decoder(encoder(seed_images, training=False), training=False)
+    
     for epoch in range(n_epoch):
         start = time.time()
 
         for image_batch in dataset:
             train_step_aae(image_batch)
-           
+        
+        # Plot images
+        fig = plt.figure(figsize=(NUM_EXAMPLES, 2))
+        for i in range(NUM_EXAMPLES):
+            plt.subplot(2, n_examples, i + 1)
+            plt.imshow(tf.squeeze(seed_images[i]) / 2 + .5)
+            plt.axis('off')
+            plt.subplot(2, n_examples, n_examples + i + 1)
+            plt.imshow(tf.squeeze(next_images[i]) / 2 + .5)
+            plt.axis('off')      
+        plt.savefig(os.path.join(args.out_dir, 'image_at_epoch_{:04d}.png'.format(epoch)))
+        plt.close(fig) 
+        
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
 
 # Train
