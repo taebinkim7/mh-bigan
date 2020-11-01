@@ -96,10 +96,10 @@ def train_aae(dataset, n_epoch):
         # Plot images
         fig = plt.figure(figsize=(NUM_EXAMPLES, 2))
         for i in range(NUM_EXAMPLES):
-            plt.subplot(2, n_examples, i + 1)
+            plt.subplot(2, NUM_EXAMPLES, i + 1)
             plt.imshow(tf.squeeze(seed_images[i]) / 2 + .5)
             plt.axis('off')
-            plt.subplot(2, n_examples, n_examples + i + 1)
+            plt.subplot(2, NUM_EXAMPLES, NUM_EXAMPLES + i + 1)
             plt.imshow(tf.squeeze(next_images[i]) / 2 + .5)
             plt.axis('off')      
         plt.savefig(os.path.join(args.out_dir, 'image_at_epoch_{:04d}.png'.format(epoch)))
