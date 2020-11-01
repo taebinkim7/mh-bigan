@@ -8,7 +8,7 @@ def Encoder(lat_dim, hid_dim):
     x = layers.Dense(hid_dim)(x)
     x = layers.LeakyReLU()(x)
     x = layers.Dropout(0.3)(x)
-    x = layers.Dense(hid_dim // 2)(x)
+    x = layers.Dense(hid_dim)(x)
     x = layers.LeakyReLU()(x)
     x = layers.Dropout(0.3)(x)
     outputs = layers.Dense(lat_dim)(x)
@@ -17,7 +17,7 @@ def Encoder(lat_dim, hid_dim):
 
 def Decoder(lat_dim, hid_dim):
     inputs = tf.keras.Input(shape=(lat_dim,))
-    x = layers.Dense(hid_dim // 2)(inputs)
+    x = layers.Dense(hid_dim)(inputs)
     x = layers.LeakyReLU()(x)
     x = layers.Dropout(0.3)(x)
     x = layers.Dense(hid_dim)(x)
