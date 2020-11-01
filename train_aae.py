@@ -49,7 +49,7 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 aae_ckpt_dir = './aae_checkpoints'
 aae_ckpt_prefix = os.path.join(aae_ckpt_dir, "aae_ckpt")
 aae_checkpoint = tf.train.Checkpoint(ae_optimizer=ae_optimizer, enc_optimizer=enc_optimizer, d_aae_optimizer=d_aae_optimizer,
-                                 encoder=encoder, decoder=decoder, d_aae=d_aae)
+                                     encoder=encoder, decoder=decoder, d_aae=d_aae)
 
 
 # Train steps
