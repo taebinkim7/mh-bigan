@@ -16,7 +16,7 @@ parser.add_argument('--out_dir', type=str, action='store')
 args = parser.parse_args()
 
 # Hyperparameters
-BUFFER_SIZE = 60000
+BUFFER_SIZE = 50000
 BATCH_SIZE = 128
 EPOCHS = 300
 LATENT_DIM = 30
@@ -24,6 +24,7 @@ HIDDEN_DIM = 3000
 SIGMA = 1.
 NUM_EXAMPLES = 20
 
+# Create a directory
 makedirs(args.out_dir, exist_ok=True)
 
 # Load data
@@ -83,16 +84,15 @@ def train_step_aae(batch_x):
 
     return ae_loss, enc_loss, d_aae_loss
 
-def train_aae(dataset, n_epoch):
-    seed_images = train_images[0:NUM_EXAMPLES]
-    next_images = decoder(encoder(seed_images, training=False), training=False)
-    
+def train_aae(dataset, n_epoch):    
     for epoch in range(n_epoch):
         start = time.time()
 
         for image_batch in dataset:
             train_step_aae(image_batch)
         
+        seed_images = train_images[0:NUM_EXAMPLES]
+        next_images = decoder(encoder(seed_images, training=False), training=False)
         # Plot images
         fig = plt.figure(figsize=(NUM_EXAMPLES, 2))
         for i in range(NUM_EXAMPLES):
