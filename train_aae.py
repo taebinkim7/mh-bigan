@@ -102,7 +102,7 @@ def train_aae(dataset, n_epoch):
             plt.subplot(2, NUM_EXAMPLES, NUM_EXAMPLES + i + 1)
             plt.imshow(tf.squeeze(next_images[i]) / 2 + .5)
             plt.axis('off')      
-        plt.savefig(os.path.join(args.out_dir, 'image_at_epoch_{:04d}.png'.format(epoch)))
+        plt.savefig(os.path.join(args.out_dir, 'image_at_epoch_{:04d}.png'.format(epoch + 1)))
         plt.close(fig) 
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
