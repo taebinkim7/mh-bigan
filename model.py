@@ -33,7 +33,7 @@ def D_aae(lat_dim, hid_dim):
     x = layers.Dense(hid_dim)(inputs)
     x = layers.LeakyReLU()(x)
     x = layers.Dropout(0.3)(x)
-    x = layers.Dense(hid_dim // 2)(x)
+    x = layers.Dense(hid_dim)(x)
     x = layers.LeakyReLU()(x)
     x = layers.Dropout(0.3)(x)
     outputs = layers.Dense(1, activation='sigmoid')(x)
