@@ -21,7 +21,7 @@ aae_checkpoint.restore(tf.train.latest_checkpoint(aae_ckpt_dir))
 # Hyperparameters
 BUFFER_SIZE = 50000
 BATCH_SIZE = 128
-EPOCHS = 300
+EPOCHS = 100
 LATENT_DIM = 200
 HIDDEN_DIM = 3000
 
