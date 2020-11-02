@@ -48,8 +48,8 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 train_dataset1 = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
 # Checkpoint
-trans_ckpt_dir = './aae_checkpoints'
-trans_ckpt_prefix = os.path.join(aae_ckpt_dir, "aae_ckpt")
+trans_ckpt_dir = './trans_checkpoints'
+trans_ckpt_prefix = os.path.join(trans_ckpt_dir, "aae_ckpt")
 trans_checkpoint = tf.train.Checkpoint(trans_optimizer=trans_optimizer, d_image_optimizer=d_image_optimizer,
                                        transition=transition, d_image=d_image)
 
