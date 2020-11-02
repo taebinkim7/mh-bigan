@@ -10,6 +10,7 @@ import time
 
 from model import Encoder, Decoder, D_aae
 from loss import D_loss, G_loss, AE_loss
+from func import plot_images
 
 parser = ArgumentParser(description='AAE')
 parser.add_argument('--out_dir', type=str, action='store')
