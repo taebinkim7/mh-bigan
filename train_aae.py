@@ -19,9 +19,12 @@ args = parser.parse_args()
 BUFFER_SIZE = 50000
 BATCH_SIZE = 128
 EPOCHS = 300
-LATENT_DIM = 50
+LATENT_DIM = 200
 HIDDEN_DIM = 3000
+
 SIGMA = 1.
+GAMMA = 0.1
+
 NUM_EXAMPLES = 20
 
 # Create a directory
@@ -93,17 +96,7 @@ def train_aae(dataset, n_epoch):
         
         seed_images = train_images[0:NUM_EXAMPLES]
         next_images = decoder(encoder(seed_images, training=False), training=False)
-        # Plot images
-        fig = plt.figure(figsize=(NUM_EXAMPLES, 2))
-        for i in range(NUM_EXAMPLES):
-            plt.subplot(2, NUM_EXAMPLES, i + 1)
-            plt.imshow(tf.squeeze(seed_images[i]) / 2 + .5)
-            plt.axis('off')
-            plt.subplot(2, NUM_EXAMPLES, NUM_EXAMPLES + i + 1)
-            plt.imshow(tf.squeeze(next_images[i]) / 2 + .5)
-            plt.axis('off')      
-        plt.savefig(os.path.join(args.out_dir, 'image_at_epoch_{:04d}.png'.format(epoch + 1)))
-        plt.close(fig) 
+        plot_images(epoch + 1, seed_images, next_images, args.out_dir)
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
 
