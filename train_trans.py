@@ -7,17 +7,16 @@ from os import makedirs
 from tensorflow.keras import layers
 import time
 
-from model import Transition, D_image
+from model import Transition, D_image, Encoder, Decoder, D_aae
 from loss import D_loss, G_loss, Trans_loss
 from func import mh_update, plot_images
 
-from train_aae import encoder, decoder, d_aae, ae_optimizer, enc_optimizer, d_aae_optimizer, aae_ckpt_dir, aae_checkpoint, train_images
+from train_aae import aae_ckpt_dir, aae_checkpoint, train_images
 
 parser = ArgumentParser(description='TRANS')
 parser.add_argument('--out_dir', type=str, action='store')
 args = parser.parse_args()
 
-aae_checkpoint.restore(tf.train.latest_checkpoint(aae_ckpt_dir))
 
 # Hyperparameters
 BUFFER_SIZE = 50000
@@ -30,6 +29,18 @@ SIGMA = 1.
 GAMMA = 0.1
 
 NUM_EXAMPLES = 20
+
+# Restore AAE
+encoder = Encoder(LATENT_DIM, HIDDEN_DIM)
+decoder = Decoder(LATENT_DIM, HIDDEN_DIM)
+d_aae = D_aae(LATENT_DIM, HIDDEN_DIM)
+
+ae_optimizer = tf.keras.optimizers.Adam(1e-4)
+enc_optimizer = tf.keras.optimizers.Adam(1e-4)
+d_aae_optimizer = tf.keras.optimizers.Adam(1e-4)
+
+aae_checkpoint.restore(tf.train.latest_checkpoint(aae_ckpt_dir))
+
 
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
