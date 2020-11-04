@@ -112,7 +112,7 @@ def train_mc(dataset, dataset1, n_epoch):
         d_image_loss, trans_loss = 0, 0
 
         for image_batch, image_batch1 in zip(dataset, dataset1):
-            d_image_loss_batch, trans_loss_batch = train_step_mc(image_batch, image_batch1, image_batch2)
+            d_image_loss_batch, trans_loss_batch = train_step_mc(image_batch, image_batch1)
             d_image_loss += d_image_loss_batch 
             trans_loss += trans_loss_batch
         
