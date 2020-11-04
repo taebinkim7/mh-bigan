@@ -9,7 +9,7 @@ from tensorflow.keras import layers
 import time
 
 from model import Transition, D_image, Encoder, Decoder, D_aae
-from loss import D_loss, G_loss, Trans_loss
+from loss import D_loss, G_loss, Trans_loss, mse
 from func import mh_update, plot_images
 
 parser = ArgumentParser(description='TRANS')
