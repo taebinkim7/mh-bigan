@@ -12,8 +12,6 @@ from model import Transition, D_image, Encoder, Decoder, D_aae
 from loss import D_loss, G_loss, Trans_loss
 from func import mh_update, plot_images
 
-from train_aae import aae_ckpt_dir, aae_checkpoint, train_images
-
 parser = ArgumentParser(description='TRANS')
 parser.add_argument('--out_dir', type=str, action='store')
 args = parser.parse_args()
@@ -40,11 +38,21 @@ ae_optimizer = tf.keras.optimizers.Adam(1e-4)
 enc_optimizer = tf.keras.optimizers.Adam(1e-4)
 d_aae_optimizer = tf.keras.optimizers.Adam(1e-4)
 
+aae_ckpt_dir = './aae_checkpoints'
+aae_ckpt_prefix = os.path.join(aae_ckpt_dir, "aae_ckpt")
+aae_checkpoint = tf.train.Checkpoint(ae_optimizer=ae_optimizer, enc_optimizer=enc_optimizer, d_aae_optimizer=d_aae_optimizer,
+                                     encoder=encoder, decoder=decoder, d_aae=d_aae)
+
 aae_checkpoint.restore(tf.train.latest_checkpoint(aae_ckpt_dir))
 
 
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
+
+# Load data
+(train_images, train_labels), (_, _) = tf.keras.datasets.cifar10.load_data()
+train_images = train_images.astype('float32')
+train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
 
 # Define models
 transition = Transition(LATENT_DIM)
