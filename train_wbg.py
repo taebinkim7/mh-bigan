@@ -123,7 +123,7 @@ def train(dataset, n_epoch):
         next_images = gen(enc(seed_images, training=False), training=False)
         plot_images(epoch + 1, seed_images, next_images, args.out_dir, 'reconstruct')
         
-        seed_codes = tf.random.normal([0:2*NUM_EXAMPLES, LATENT_DIM])
+        seed_codes = tf.random.normal([2*NUM_EXAMPLES, LATENT_DIM])
         fake_images = gen(seed_codes, training=False)
         plot_images(epoch + 1, fake_images[0:NUM_EXAMPLES], fake_images[NUM_EXAMPLES:2*NUM_EXAMPLES], args.out_dir, 'generate')
         
