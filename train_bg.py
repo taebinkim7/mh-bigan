@@ -19,12 +19,12 @@ args = parser.parse_args()
 # Hyperparameters
 BUFFER_SIZE = 50000
 BATCH_SIZE = 128
-EPOCHS = 300
-LATENT_DIM = 200
-HIDDEN_DIM = 3000
+EPOCHS = 50
+LATENT_DIM = 128
+# HIDDEN_DIM = 3000
 
-SIGMA = 1.
-GAMMA = 0.1
+# SIGMA = 1.
+# GAMMA = 0.1
 
 NUM_EXAMPLES = 20
 
@@ -37,23 +37,23 @@ train_images = train_images.astype('float32')
 train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
 
 # Define models
-encoder = Encoder(LATENT_DIM, HIDDEN_DIM)
-decoder = Decoder(LATENT_DIM, HIDDEN_DIM)
-d_aae = D_aae(LATENT_DIM, HIDDEN_DIM)
+enc = Encoder(train_images[0].shape, LATENT_DIM)
+gen = Generator(train_images[0].shape, LATENT_DIM)
+disc = Discriminator(train_images[0].shape, LATENT_DIM)
 
 # Define optimizers
-ae_optimizer = tf.keras.optimizers.Adam(1e-4)
 enc_optimizer = tf.keras.optimizers.Adam(1e-4)
-d_aae_optimizer = tf.keras.optimizers.Adam(1e-4)
+gen_optimizer = tf.keras.optimizers.Adam(1e-4)
+disc_optimizer = tf.keras.optimizers.Adam(1e-4)
 
 # Batch and shuffle the data
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
 # Checkpoint
-aae_ckpt_dir = './aae_checkpoints'
-aae_ckpt_prefix = os.path.join(aae_ckpt_dir, "aae_ckpt")
-aae_checkpoint = tf.train.Checkpoint(ae_optimizer=ae_optimizer, enc_optimizer=enc_optimizer, d_aae_optimizer=d_aae_optimizer,
-                                     encoder=encoder, decoder=decoder, d_aae=d_aae)
+bg_ckpt_dir = './bg_checkpoints'
+bg_ckpt_prefix = os.path.join(bg_ckpt_dir, "bg_ckpt")
+bg_ckpt = tf.train.Checkpoint(enc_optimizer=enc_optimizer, gen_optimizer=gen_optimizer, disc_optimizer=disc_optimizer,
+                              enc=enc, gen=gen, disc=disc)
 
 
 # Train steps
