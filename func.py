@@ -34,7 +34,7 @@ def gradient_penalty(f, x, ex, z, gz):
     inter = [int_x, int_z]
     with tf.GradientTape() as t_tape:
         t_tape.watch(inter)
-        pred = f(inter)
+        pred = f([int_x, int_z])
     grad = t_tape.gradient(pred, inter)[0]
     slopes = tf.sqrt(tf.reduce_sum(tf.square(grad), axis=[1, 2, 3]))
     gp = tf.reduce_mean((slopes - 1.)**2)
