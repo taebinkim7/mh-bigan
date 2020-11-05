@@ -9,7 +9,7 @@ from os import makedirs
 import time
 from IPython import display
 
-from model import Encoder, Generator, Discriminator
+from model import Encoder, Generator, Critic
 from loss import C_loss, EG_loss_wass
 from func import plot_images, gradient_penalty
 
