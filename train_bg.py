@@ -98,7 +98,11 @@ def train(dataset, n_epoch):
         display.clear_output(wait=True)
         seed_images = train_images[0:NUM_EXAMPLES]
         next_images = gen(enc(seed_images, training=False), training=False)
-        plot_images(epoch + 1, seed_images, next_images, args.out_dir)
+        plot_images(epoch + 1, seed_images, next_images, args.out_dir, 'reconstruct')
+        
+        seed_codes = tf.random.normal([NUM_EXAMPLES, LATENT_DIM])
+        fake_images = gen(seed_codes, training=False)
+        plot_images(epoch + 1, fake_images, fake_images, args.out_dir, 'reconstruct')
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(g_loss, d_loss))
