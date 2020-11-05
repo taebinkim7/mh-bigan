@@ -20,7 +20,7 @@ def C_loss(x_ex, gz_z):
     total_loss = real_loss + fake_loss
     return total_loss
 
-def W_EG_loss(x_ex, gz_z):
+def EG_loss_wass(x_ex, gz_z):
     real_loss = tf.reduce_mean(x_ex)
     fake_loss = - tf.reduce_mean(gz_z)
     total_loss = real_loss + fake_loss
