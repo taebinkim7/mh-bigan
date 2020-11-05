@@ -72,7 +72,7 @@ def train_step(batch_x):
 
     g_gradient = g_tape.gradient(g_loss, enc.trainable_variables + gen.trainable_variables)
     g_optimizer.apply_gradients(zip(g_gradient, enc.trainable_variables + gen.trainable_variables))
-    d_gradient = enc_tape.gradient(d_loss, disc.trainable_variables)
+    d_gradient = d_tape.gradient(d_loss, disc.trainable_variables)
     d_optimizer.apply_gradients(zip(d_gradient, disc.trainable_variables))
     
     return g_loss, d_loss
