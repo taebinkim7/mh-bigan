@@ -81,8 +81,6 @@ def train_step_c(batch_x):
         
         c_loss = C_loss(x_ex, gz_z) + GP_WEIGHT * gp
 
-    eg_gradient = eg_tape.gradient(eg_loss, enc.trainable_variables + gen.trainable_variables)
-    eg_optimizer.apply_gradients(zip(eg_gradient, enc.trainable_variables + gen.trainable_variables))
     c_gradient = c_tape.gradient(c_loss, crit.trainable_variables)
     c_optimizer.apply_gradients(zip(c_gradient, crit.trainable_variables))
     
