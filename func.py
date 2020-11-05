@@ -28,14 +28,16 @@ def plot_images(epoch, sample_input, sample_next, out_dir, img_title):
 
 def gradient_penalty(f, x, ex, z, gz):
     batch_size = x.shape[0]
-    eps = tf.random.uniform([batch_size, 1, 1, 1])
-    int_x = eps * x + (1 - eps) * gz 
-    int_z = eps * ex + (1 - eps) * z
+    eps_x = tf.random.uniform([batch_size, 1, 1, 1])
+    eps_z = tf.squeeze(eps_x, axis=[2, 3])
+    int_x = eps * x + (1 - eps_x) * gz 
+    int_z = eps * ex + (1 - eps_z) * z
     inter = [int_x, int_z]
     with tf.GradientTape() as t_tape:
         t_tape.watch(inter)
         pred = f(inter)
-    grad = t_tape.gradient(pred, inter)[0]
-    slopes = tf.sqrt(tf.reduce_sum(tf.square(grad), axis=[1, 2, 3]))
+    grad_x = t_tape.gradient(pred, inter)[0]
+    grad_z = t_tape.gradient(pred, inter)[1]
+    slopes = tf.sqrt(tf.reduce_sum(tf.square(grad_x), axis=[1, 2, 3]) + tf.reduce_sum(tf.square(grad_z), axis=1))
     gp = tf.reduce_mean((slopes - 1.)**2)
     return gp
