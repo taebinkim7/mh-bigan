@@ -55,8 +55,9 @@ d_optimizer = tf.keras.optimizers.Adam(1e-4)
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
 # Checkpoint
-bg_ckpt_dir = './bg_checkpoints'
-bg_ckpt_prefix = os.path.join(bg_ckpt_dir, "bg_ckpt")
+# bg_ckpt_dir = './bg_checkpoints'
+bg_ckpt_dir = os.path.join(args.out_dir, 'bg_checkpoints')
+bg_ckpt_prefix = os.path.join(bg_ckpt_dir, 'bg_ckpt')
 bg_ckpt = tf.train.Checkpoint(g_optimizer=g_optimizer, d_optimizer=d_optimizer,
                               enc=enc, gen=gen, disc=disc)
 
