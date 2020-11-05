@@ -12,13 +12,13 @@ from model import Encoder, Generator, Discriminator
 from loss import D_loss, G_loss
 from func import plot_images
 
-parser = ArgumentParser(description='AAE')
+parser = ArgumentParser(description='bigan')
 parser.add_argument('--out_dir', type=str, action='store')
 args = parser.parse_args()
 
 # Hyperparameters
 BUFFER_SIZE = 50000
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 EPOCHS = 50
 LATENT_DIM = 128
 # HIDDEN_DIM = 3000
@@ -42,9 +42,8 @@ gen = Generator(train_images[0].shape, LATENT_DIM)
 disc = Discriminator(train_images[0].shape, LATENT_DIM)
 
 # Define optimizers
-enc_optimizer = tf.keras.optimizers.Adam(1e-4)
-gen_optimizer = tf.keras.optimizers.Adam(1e-4)
-disc_optimizer = tf.keras.optimizers.Adam(1e-4)
+g_optimizer = tf.keras.optimizers.Adam(1e-4)
+d_optimizer = tf.keras.optimizers.Adam(1e-4)
 
 # Batch and shuffle the data
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
@@ -58,49 +57,44 @@ bg_ckpt = tf.train.Checkpoint(enc_optimizer=enc_optimizer, gen_optimizer=gen_opt
 
 # Train steps
 @tf.function
-def train_step_aae(batch_x):
-    with tf.GradientTape() as ae_tape, tf.GradientTape() as enc_tape, tf.GradientTape() as d_aae_tape:
-        # Autoencoder / Encoder
-        fake_z = encoder(batch_x, training=True)
-        fake_x = decoder(fake_z, training=True)
+def train_step(batch_x):
+    with tf.GradientTape() as g_tape, tf.GradientTape() as d_tape:
+        x = batch_x
+        ex = enc(x, training=True)
+        
+        z = tf.random.normal([x.shape[0], LATENT_DIM])
+        gz = gen(z, training=True)
+        
+        x_ex = disc([x, ex], training=True)
+        gz_z = disc([gz, z], training=True)
+        
+        d_loss = D_loss(x_ex, gz_z)
+        g_loss = G_loss(x_ex, gz_z)
 
-        # Autoencoder loss
-        ae_loss = AE_loss(batch_x, fake_x)
+    g_gradient = g_tape.gradient(g_loss, enc.trainable_variables + gen.trainable_variables)
+    g_optimizer.apply_gradients(zip(g_gradient, enc.trainable_variables + gen.trainable_variables))
+    d_gradient = enc_tape.gradient(d_loss, disc.trainable_variables)
+    d_optimizer.apply_gradients(zip(d_gradient, disc.trainable_variables))
+    
+    return g_loss, d_loss
 
-        # Discriminator
-        real_z = tf.random.normal([batch_x.shape[0], LATENT_DIM], mean=0., stddev=SIGMA)
-
-        real_output = d_aae(real_z, training=True)
-        fake_output = d_aae(fake_z, training=True)
-
-        # Encoder loss
-        enc_loss = G_loss(fake_output)
-
-        # Discriminator Loss
-        d_aae_loss = D_loss(real_output, fake_output)
-
-    ae_gradient = ae_tape.gradient(ae_loss, encoder.trainable_variables + decoder.trainable_variables)
-    ae_optimizer.apply_gradients(zip(ae_gradient, encoder.trainable_variables + decoder.trainable_variables))
-    enc_gradient = enc_tape.gradient(enc_loss, encoder.trainable_variables)
-    enc_optimizer.apply_gradients(zip(enc_gradient, encoder.trainable_variables))
-    d_aae_gradient = d_aae_tape.gradient(d_aae_loss, d_aae.trainable_variables)
-    d_aae_optimizer.apply_gradients(zip(d_aae_gradient, d_aae.trainable_variables))
-
-    return ae_loss, enc_loss, d_aae_loss
-
-def train_aae(dataset, n_epoch):    
+def train(dataset, n_epoch):    
     for epoch in range(n_epoch):
         start = time.time()
-
-        for image_batch in dataset:
-            train_step_aae(image_batch)
+        
+        g_loss, d_loss = 0, 0
+        
+        for batch in dataset:
+            g_loss_batch, d_loss_batch = train_step(batch)
+            g_loss += g_loss_batch
+            d_loss += d_loss_batch
         
         seed_images = train_images[0:NUM_EXAMPLES]
-        next_images = decoder(encoder(seed_images, training=False), training=False)
+        next_images = gen(enc(seed_images, training=False), training=False)
         plot_images(epoch + 1, seed_images, next_images, args.out_dir)
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
 
 # Train
-train_aae(train_dataset, EPOCHS)
-aae_checkpoint.save(file_prefix = aae_ckpt_prefix)
+train(train_dataset, EPOCHS)
+bg_checkpoint.save(file_prefix = bg_ckpt_prefix)
