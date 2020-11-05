@@ -19,7 +19,7 @@ args = parser.parse_args()
 # Hyperparameters
 BUFFER_SIZE = 50000
 BATCH_SIZE = 64
-EPOCHS = 50
+EPOCHS = 100
 LATENT_DIM = 128
 # HIDDEN_DIM = 3000
 
