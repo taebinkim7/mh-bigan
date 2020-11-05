@@ -74,8 +74,8 @@ def train_step_c(batch_x):
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
-        x_ex = disc([x, ex], training=True)
-        gz_z = disc([gz, z], training=True)
+        x_ex = crit([x, ex], training=True)
+        gz_z = crit([gz, z], training=True)
         
         gp = gradient_penalty(partial(crit, training=True), x, ex, z, gz)
         
