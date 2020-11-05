@@ -26,14 +26,15 @@ def plot_images(epoch, sample_input, sample_next, out_dir, img_title):
     plt.savefig(os.path.join(out_dir, img_title + '_at_epoch_{:04d}.png'.format(epoch)))
     plt.close(fig)   
 
-def gradient_penalty(f, real, fake):
-    epsilon = tf.random.uniform([real.shape[0], 1, 1, 1])
-    diff = fake - real
-    inter = real + (epsilon * diff)
+def gradient_penalty(f, x, ex, z, gz):
+    eps = tf.random.uniform([real.shape[0], 1, 1, 1])
+    int_x = eps * x + (1 - eps) * gz 
+    int_z = eps * ex + (1 - eps) * z
+    inter = [int_x, int_z]
     with tf.GradientTape() as t_tape:
         t_tape.watch(inter)
         pred = f(inter)
-    grad = t_tape.gradient(pred, [inter])[0]
+    grad = t_tape.gradient(pred, inter)[0]
     slopes = tf.sqrt(tf.reduce_sum(tf.square(grad), axis=[1, 2, 3]))
     gp = tf.reduce_mean((slopes - 1.)**2)
     return gp
