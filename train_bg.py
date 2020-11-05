@@ -6,6 +6,7 @@ import numpy as np
 import os
 from os import makedirs
 import time
+from IPython import display
 
 from model import Encoder, Generator, Discriminator
 from loss import D_loss, G_loss
@@ -88,11 +89,13 @@ def train(dataset, n_epoch):
             g_loss += g_loss_batch
             d_loss += d_loss_batch
         
+        display.clear_output(wait=True)
         seed_images = train_images[0:NUM_EXAMPLES]
         next_images = gen(enc(seed_images, training=False), training=False)
         plot_images(epoch + 1, seed_images, next_images, args.out_dir)
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
+        print ('G loss is {} and D loss is {}.format(g_loss, d_loss))
 
 # Train
 train(train_dataset, EPOCHS)
