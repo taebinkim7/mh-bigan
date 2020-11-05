@@ -27,7 +27,8 @@ def plot_images(epoch, sample_input, sample_next, out_dir, img_title):
     plt.close(fig)   
 
 def gradient_penalty(f, x, ex, z, gz):
-    eps = tf.random.uniform([real.shape[0], 1, 1, 1])
+    batch_size = x.shape[0]
+    eps = tf.random.uniform([batch_size, 1, 1, 1])
     int_x = eps * x + (1 - eps) * gz 
     int_z = eps * ex + (1 - eps) * z
     inter = [int_x, int_z]
