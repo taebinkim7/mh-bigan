@@ -9,7 +9,7 @@ import time
 from IPython import display
 
 from model import Encoder, Generator, Discriminator
-from loss import D_loss, G_loss
+from loss import D_loss, EG_loss
 from func import plot_images, mh_update
 
 parser = ArgumentParser(description='bigan')
@@ -47,7 +47,7 @@ gen = Generator(train_images[0].shape, LATENT_DIM)
 disc = Discriminator(train_images[0].shape, LATENT_DIM)
 
 # Define optimizers
-g_optimizer = tf.keras.optimizers.Adam(1e-4)
+eg_optimizer = tf.keras.optimizers.Adam(1e-4)
 d_optimizer = tf.keras.optimizers.Adam(1e-4)
 
 # Batch and shuffle the data
@@ -57,14 +57,14 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 # mhbg_ckpt_dir = './mhbg_checkpoints'
 mhbg_ckpt_dir = os.path.join(args.out_dir, 'mhbg_checkpoints')
 mhbg_ckpt_prefix = os.path.join(mhbg_ckpt_dir, 'mhbg_ckpt')
-mhbg_ckpt = tf.train.Checkpoint(g_optimizer=g_optimizer, d_optimizer=d_optimizer,
+mhbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, d_optimizer=d_optimizer,
                               enc=enc, gen=gen, disc=disc)
 
 
 # Train steps
 @tf.function
 def train_step(batch_x):
-    with tf.GradientTape() as g_tape, tf.GradientTape() as d_tape:
+    with tf.GradientTape() as eg_tape, tf.GradientTape() as d_tape:
         x = batch_x
         ex = enc(x, training=True)
         
@@ -79,24 +79,24 @@ def train_step(batch_x):
         x1_ex1 = disc([x1, ex1], training=True)
         
         d_loss = D_loss(x_ex, gz_z) + D_loss(x_ex, x1_ex1)
-        g_loss = G_loss(x_ex, gz_z) + G_loss(x_ex, x1_ex1)
+        eg_loss = EG_loss(x_ex, gz_z) + EG_loss(x_ex, x1_ex1)
 
-    g_gradient = g_tape.gradient(g_loss, enc.trainable_variables + gen.trainable_variables)
-    g_optimizer.apply_gradients(zip(g_gradient, enc.trainable_variables + gen.trainable_variables))
+    eg_gradient = eg_tape.gradient(eg_loss, enc.trainable_variables + gen.trainable_variables)
+    eg_optimizer.apply_gradients(zip(eg_gradient, enc.trainable_variables + gen.trainable_variables))
     d_gradient = d_tape.gradient(d_loss, disc.trainable_variables)
     d_optimizer.apply_gradients(zip(d_gradient, disc.trainable_variables))
     
-    return g_loss, d_loss
+    return eg_loss, d_loss
 
 def train(dataset, n_epoch):    
     for epoch in range(n_epoch):
         start = time.time()
         
-        g_loss, d_loss = 0, 0
+        eg_loss, d_loss = 0, 0
         
         for batch in dataset:
-            g_loss_batch, d_loss_batch = train_step(batch)
-            g_loss += g_loss_batch
+            eg_loss_batch, d_loss_batch = train_step(batch)
+            eg_loss += eg_loss_batch
             d_loss += d_loss_batch
         
         display.clear_output(wait=True)
@@ -109,7 +109,7 @@ def train(dataset, n_epoch):
         plot_images(epoch + 1, fake_images[0:NUM_EXAMPLES], fake_images[NUM_EXAMPLES:2*NUM_EXAMPLES], args.out_dir, 'generate')
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
-        print ('G loss is {} and D loss is {}'.format(g_loss, d_loss))
+        print ('G loss is {} and D loss is {}'.format(eg_loss, d_loss))
 
 # Train
 train(train_dataset, EPOCHS)
