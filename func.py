@@ -30,8 +30,8 @@ def gradient_penalty(f, x, ex, z, gz):
     batch_size = x.shape[0]
     eps_x = tf.random.uniform([batch_size, 1, 1, 1])
     eps_z = tf.squeeze(eps_x, axis=[2, 3])
-    int_x = eps * x + (1 - eps_x) * gz 
-    int_z = eps * ex + (1 - eps_z) * z
+    int_x = eps_x * x + (1 - eps_x) * gz 
+    int_z = eps_z * ex + (1 - eps_z) * z
     inter = [int_x, int_z]
     with tf.GradientTape() as t_tape:
         t_tape.watch(inter)
