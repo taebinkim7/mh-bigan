@@ -23,5 +23,5 @@ def plot_images(epoch, sample_input, sample_next, out_dir, img_title):
         plt.imshow(tf.squeeze(sample_input[j]), cmap='gray')
         plt.axis('off')   
 
-    plt.savefig(os.path.join(out_dir, 'image_at_epoch_{:04d}.png'.format(epoch)))
+    plt.savefig(os.path.join(out_dir, img_title + '_at_epoch_{:04d}.png'.format(epoch)))
     plt.close(fig)   
