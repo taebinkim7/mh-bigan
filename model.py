@@ -17,7 +17,7 @@ def Encoder(img_dim, lat_dim):
     x = layers.LeakyReLU()(x)
     x = layers.Flatten()(x)
 
-    outputs = layers.Dense(lat_dim)(x)
+    outputs = layers.Dense(lat_dim, kernel_initializer='he_normal')(x)
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
     return model
 
@@ -65,7 +65,7 @@ def Discriminator(img_dim, lat_dim):
     x = layers.Flatten()(x)
 
     z = layers.Flatten()(inputs_z)
-    z = layers.Dense(512)(z)
+    z = layers.Dense(512, kernel_initializer='he_normal')(z)
     z = layers.Dropout(0.2)(z)
 
     xz = layers.concatenate([x, z])
