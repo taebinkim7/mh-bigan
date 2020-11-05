@@ -95,7 +95,7 @@ def train(dataset, n_epoch):
         plot_images(epoch + 1, seed_images, next_images, args.out_dir)
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
-        print ('G loss is {} and D loss is {}.format(g_loss, d_loss))
+        print ('G loss is {} and D loss is {}'.format(g_loss, d_loss))
 
 # Train
 train(train_dataset, EPOCHS)
