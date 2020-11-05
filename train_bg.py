@@ -50,7 +50,7 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 # Checkpoint
 bg_ckpt_dir = './bg_checkpoints'
 bg_ckpt_prefix = os.path.join(bg_ckpt_dir, "bg_ckpt")
-bg_ckpt = tf.train.Checkpoint(enc_optimizer=enc_optimizer, gen_optimizer=gen_optimizer, disc_optimizer=disc_optimizer,
+bg_ckpt = tf.train.Checkpoint(g_optimizer=g_optimizer, d_optimizer=d_optimizer,
                               enc=enc, gen=gen, disc=disc)
 
 
