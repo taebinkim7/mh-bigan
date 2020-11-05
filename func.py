@@ -33,7 +33,7 @@ def gradient_penalty(f, x, ex, z, gz):
     int_x = eps_x * x + (1 - eps_x) * gz 
     int_z = eps_z * ex + (1 - eps_z) * z
     inter = [int_x, int_z]
-    with tf.GradientTape() as t_tape:
+    with tf.GradientTape(persistent=True) as t_tape:
         t_tape.watch(inter)
         pred = f(inter)
     grad_x = t_tape.gradient(pred, inter)[0]
