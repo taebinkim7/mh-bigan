@@ -17,7 +17,7 @@ parser.add_argument('--out_dir', type=str, action='store')
 args = parser.parse_args()
 
 # Hyperparameters
-BUFFER_SIZE = 50000
+BUFFER_SIZE = 60000
 BATCH_SIZE = 64
 EPOCHS = 100
 LATENT_DIM = 128
@@ -27,13 +27,19 @@ LATENT_DIM = 128
 # GAMMA = 0.1
 
 NUM_EXAMPLES = 20
+NUM_CHANNELS = 1
 
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
 
-# Load data
-(train_images, train_labels), (_, _) = tf.keras.datasets.cifar10.load_data()
-train_images = train_images.astype('float32')
+# # Load data
+# (train_images, train_labels), (_, _) = tf.keras.datasets.cifar10.load_data()
+# train_images = train_images.astype('float32')
+# train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
+
+(train_images, train_labels), (_, _) = tf.keras.datasets.mnist.load_data()
+train_images = np.pad(train_images, [(0,0), (2,2), (2,2)])
+train_images = train_images.reshape(train_images.shape[0], 32, 32, 1).astype('float32')
 train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
 
 # Define models
