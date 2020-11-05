@@ -9,18 +9,18 @@ def mh_update(prev, gam, sig=1):
         u = tf.random.uniform(p.shape)
         return tf.where(tf.expand_dims(u < p, axis=1), cand, prev)
 
-def plot_images(epoch, sample_input, sample_next, out_dir):
+def plot_images(epoch, sample_input, sample_next, out_dir, img_title):
     n_examples = sample_input.shape[0]
     fig = plt.figure(figsize=(n_examples, 2))
     for j in range(n_examples):
         plt.subplot(2, n_examples, j + 1)
 #         plt.imshow(tf.squeeze(sample_input[j]) / 2 + .5)
-        plt.imshow(tf.squeeze(sample_input[j]))
+        plt.imshow(tf.squeeze(sample_input[j]), cmap='gray')
         plt.axis('off')  
 
         plt.subplot(2, n_examples, n_examples + j + 1)
 #         plt.imshow(tf.squeeze(sample_next[j]) / 2 + .5)
-        plt.imshow(tf.squeeze(sample_input[j]))
+        plt.imshow(tf.squeeze(sample_input[j]), cmap='gray')
         plt.axis('off')   
 
     plt.savefig(os.path.join(out_dir, 'image_at_epoch_{:04d}.png'.format(epoch)))
