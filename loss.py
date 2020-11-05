@@ -8,8 +8,20 @@ def D_loss(x_ex, gz_z):
     total_loss = real_loss + fake_loss
     return total_loss
 
-def G_loss(x_ex, gz_z):
+def EG_loss(x_ex, gz_z):
     real_loss = cross_entropy(tf.zeros_like(x_ex), x_ex)
     fake_loss = cross_entropy(tf.ones_like(gz_z), gz_z)
+    total_loss = real_loss + fake_loss
+    return total_loss
+
+def C_loss(x_ex, gz_z):
+    real_loss = - tf.reduce_mean(x_ex)
+    fake_loss = tf.reduce_mean(gz_z)
+    total_loss = real_loss + fake_loss
+    return total_loss
+
+def W_EG_loss(x_ex, gz_z):
+    real_loss = tf.reduce_mean(x_ex)
+    fake_loss = - tf.reduce_mean(gz_z)
     total_loss = real_loss + fake_loss
     return total_loss
