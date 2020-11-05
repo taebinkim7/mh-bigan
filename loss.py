@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-cross_entropy = tf.keras.losses.BinaryCrossentropy()
+cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
 def D_loss(x_ex, gz_z):
     real_loss = cross_entropy(tf.ones_like(x_ex), x_ex)
