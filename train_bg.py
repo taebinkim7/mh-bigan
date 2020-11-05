@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from os import makedirs
-from tensorflow.keras import layers
 import time
 
 from model import Encoder, Generator, Discriminator
