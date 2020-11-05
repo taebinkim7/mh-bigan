@@ -10,7 +10,7 @@ import time
 from IPython import display
 
 from model import Encoder, Generator, Critic
-from loss import C_loss, EG_loss_wass
+from loss import W_loss
 from func import plot_images, gradient_penalty
 
 parser = ArgumentParser(description='bigan')
@@ -79,7 +79,7 @@ def train_step_c(batch_x):
         
         gp = gradient_penalty(partial(crit, training=True), x, ex, z, gz)
         
-        c_loss = C_loss(x_ex, gz_z) + GP_WEIGHT * gp
+        c_loss = W_loss(x_ex, gz_z) + GP_WEIGHT * gp
 
     c_gradient = c_tape.gradient(c_loss, crit.trainable_variables)
     c_optimizer.apply_gradients(zip(c_gradient, crit.trainable_variables))
@@ -89,11 +89,15 @@ def train_step_c(batch_x):
 def train_step_eg(batch_x):
     with tf.GradientTape() as eg_tape:
         x = batch_x
+        ex = enc(x, training=True)
         
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
-        eg_loss = EG_loss_wass(x_ex, gz_z)
+        x_ex = crit([x, ex], training=True)
+        gz_z = crit([gz, z], training=True)
+        
+        eg_loss = - W_loss(x_ex, gz_z)
         
     eg_gradient = eg_tape.gradient(eg_loss, enc.trainable_variables + gen.trainable_variables)
     eg_optimizer.apply_gradients(zip(eg_gradient, enc.trainable_variables + gen.trainable_variables))
