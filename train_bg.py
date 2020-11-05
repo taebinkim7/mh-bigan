@@ -109,4 +109,4 @@ def train(dataset, n_epoch):
 
 # Train
 train(train_dataset, EPOCHS)
-bg_checkpoint.save(file_prefix = bg_ckpt_prefix)
+bg_ckpt.save(file_prefix = bg_ckpt_prefix)
