@@ -1,13 +1,11 @@
 import tensorflow as tf
 from tensorflow.keras import layers
+
 def Encoder(img_dim, lat_dim):
     inputs = tf.keras.Input(shape=img_dim)
 
-    x = layers.Conv2D(64, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(inputs)
+    x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(inputs)
     # x = layers.BatchNormalization()(x)
-    x = layers.LeakyReLU()(x)
-    x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
-    x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
     x = layers.Conv2D(256, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
     x = layers.BatchNormalization()(x)
@@ -15,9 +13,12 @@ def Encoder(img_dim, lat_dim):
     x = layers.Conv2D(512, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
+    x = layers.Conv2D(512, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
     x = layers.Flatten()(x)
 
-    outputs = layers.Dense(lat_dim, kernel_initializer='he_normal')(x)
+    outputs = layers.Dense(lat_dim)(x)
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
     return model
 
@@ -30,13 +31,13 @@ def Generator(img_dim, lat_dim):
     x = layers.Reshape([dim16, dim16, 512])(x)
     x = layers.BatchNormalization()(x)
     x = layers.ReLU()(x)
+    x = layers.Conv2DTranspose(512, (5, 5), (2, 2), padding='same', use_bias=False)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
     x = layers.Conv2DTranspose(256, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
     x = layers.BatchNormalization()(x)
     x = layers.ReLU()(x)
     x = layers.Conv2DTranspose(128, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.ReLU()(x)
-    x = layers.Conv2DTranspose(64, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
     x = layers.BatchNormalization()(x)
     x = layers.ReLU()(x)
 
@@ -48,13 +49,13 @@ def Discriminator(img_dim, lat_dim):
     inputs_x = tf.keras.Input(shape=img_dim)
     inputs_z = tf.keras.Input(shape=(lat_dim,))
 
-    x = layers.Conv2D(64, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(inputs_x)
+    x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(inputs_x)
     # x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
-    x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
+    x = layers.Conv2D(256, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
-    x = layers.Conv2D(256, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
+    x = layers.Conv2D(512, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
     x = layers.Dropout(0.2)(x)
@@ -65,6 +66,8 @@ def Discriminator(img_dim, lat_dim):
     x = layers.Flatten()(x)
 
     z = layers.Flatten()(inputs_z)
+    z = layers.Dense(512, kernel_initializer='he_normal')(z)
+    z = layers.Dropout(0.2)(z)
     z = layers.Dense(512, kernel_initializer='he_normal')(z)
     z = layers.Dropout(0.2)(z)
 
