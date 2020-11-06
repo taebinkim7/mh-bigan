@@ -17,7 +17,7 @@ parser.add_argument('--out_dir', type=str, action='store')
 args = parser.parse_args()
 
 # Hyperparameters
-BUFFER_SIZE = 60000
+BUFFER_SIZE = 50000
 BATCH_SIZE = 64
 EPOCHS = 100
 LATENT_DIM = 128
@@ -31,15 +31,15 @@ NUM_CHANNELS = 1
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
 
-# # Load data
-# (train_images, train_labels), (_, _) = tf.keras.datasets.cifar10.load_data()
-# train_images = train_images.astype('float32')
-# train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
-
-(train_images, train_labels), (_, _) = tf.keras.datasets.mnist.load_data()
-train_images = np.pad(train_images, [(0,0), (2,2), (2,2)])
-train_images = train_images.reshape(train_images.shape[0], 32, 32, 1).astype('float32')
+# Load data
+(train_images, train_labels), (_, _) = tf.keras.datasets.cifar10.load_data()
+train_images = train_images.astype('float32')
 train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
+
+# (train_images, train_labels), (_, _) = tf.keras.datasets.mnist.load_data()
+# train_images = np.pad(train_images, [(0,0), (2,2), (2,2)])
+# train_images = train_images.reshape(train_images.shape[0], 32, 32, 1).astype('float32')
+# train_images = (train_images - 127.5) / 127.5 # Normalize the images to [-1, 1]
 
 # Define models
 enc = Encoder(train_images[0].shape, LATENT_DIM)
@@ -63,7 +63,7 @@ mhbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, d_optimizer=d_optimiz
 
 # Train steps
 @tf.function
-def train_step(batch_x):
+def train_step(batch_x, k):
     with tf.GradientTape() as eg_tape, tf.GradientTape() as d_tape:
         x = batch_x
         ex = enc(x, training=True)
@@ -71,7 +71,9 @@ def train_step(batch_x):
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
-        ex1 = mh_update(ex, GAMMA)
+#         ex1 = mh_update(ex, GAMMA)
+#         x1 = gen(ex1, training=True)
+        ex1 = tf.scan(mh_update, GAMMA * tf.ones(k), ex)[-1]
         x1 = gen(ex1, training=True)
         
         x_ex = disc([x, ex], training=True)
@@ -79,7 +81,7 @@ def train_step(batch_x):
         x1_ex1 = disc([x1, ex1], training=True)
         
         d_loss = D_loss(x_ex, gz_z) + D_loss(x_ex, x1_ex1)
-        eg_loss = EG_loss(x_ex, gz_z) + EG_loss(x_ex, x1_ex1)
+        eg_loss = EG_loss(x_ex, x1_ex1) + 0.5 * EG_loss(x1_ex1, gz_z)
 
     eg_gradient = eg_tape.gradient(eg_loss, enc.trainable_variables + gen.trainable_variables)
     eg_optimizer.apply_gradients(zip(eg_gradient, enc.trainable_variables + gen.trainable_variables))
@@ -94,8 +96,9 @@ def train(dataset, n_epoch):
         
         eg_loss, d_loss = 0, 0
         
+        k = np.random.choice(5)  
         for batch in dataset:
-            eg_loss_batch, d_loss_batch = train_step(batch)
+            eg_loss_batch, d_loss_batch = train_step(batch, k)
             eg_loss += eg_loss_batch
             d_loss += d_loss_batch
         
