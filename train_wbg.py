@@ -50,8 +50,8 @@ gen = Generator(train_images[0].shape, LATENT_DIM)
 crit = Critic(train_images[0].shape, LATENT_DIM)
 
 # Define optimizers
-eg_optimizer = tf.keras.optimizers.Adam(1e-4)
-c_optimizer = tf.keras.optimizers.Adam(1e-4)
+eg_optimizer = tf.keras.optimizers.Adam(1e-4, 0.5, 0.9)
+c_optimizer = tf.keras.optimizers.Adam(1e-4, 0.5, 0.9)
 
 # Batch and shuffle the data
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
