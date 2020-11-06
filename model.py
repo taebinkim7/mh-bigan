@@ -41,7 +41,7 @@ def Generator(img_dim, lat_dim):
     x = layers.BatchNormalization()(x)
     x = layers.ReLU()(x)
 
-    outputs = layers.Conv2DTranspose(1, (5, 5), (2, 2), padding='same', activation='tanh', kernel_initializer='he_normal')(x) ####MNIST
+    outputs = layers.Conv2DTranspose(3, (5, 5), (2, 2), padding='same', activation='tanh', kernel_initializer='he_normal')(x) ####MNIST
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
     return model
 
