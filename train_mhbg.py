@@ -27,6 +27,7 @@ GAMMA = 0.1
 
 NUM_EXAMPLES = 20
 NUM_CHANNELS = 1
+NUM_STEPS = 5
 
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
@@ -96,7 +97,7 @@ def train(dataset, n_epoch):
         
         eg_loss, d_loss = 0, 0
         
-        k = np.random.choice(5)  
+        k = np.random.choice(NUM_STEPS) + 1
         for batch in dataset:
             eg_loss_batch, d_loss_batch = train_step(batch, k)
             eg_loss += eg_loss_batch
