@@ -70,6 +70,8 @@ def Discriminator(img_dim, lat_dim):
     z = layers.Dropout(0.2)(z)
 
     xz = layers.concatenate([x, z])
+    xz = layers.Dense(1024)(xz)
+    xz = layers.LeakyReLU()(xz)
 
     outputs = layers.Dense(1)(xz)
     model = tf.keras.Model(inputs=[inputs_x, inputs_z], outputs=outputs)
