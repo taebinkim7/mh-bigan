@@ -10,7 +10,7 @@ from IPython import display
 
 from model import Encoder, Generator, Discriminator
 from loss import D_loss, EG_loss
-from func import plot_images, mh_update
+from util import plot_images, mh_update
 
 parser = ArgumentParser(description='bigan')
 parser.add_argument('--out_dir', type=str, action='store')
