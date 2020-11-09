@@ -23,7 +23,7 @@ def Encoder(img_dim, lat_dim):
     return model
 
 def Generator(img_dim, lat_dim):
-    dim16 = img_dim[0] // 8
+    dim16 = img_dim[0] // 16
 
     inputs = tf.keras.Input(shape=(lat_dim,))
 
