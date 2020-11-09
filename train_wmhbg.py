@@ -59,8 +59,8 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 
 # Checkpoint
 # wbg_ckpt_dir = './wbg_checkpoints'
-wmhbg_ckpt_dir = os.path.join(args.out_dir, 'wbg_checkpoints')
-wmhbg_ckpt_prefix = os.path.join(wmhbg_ckpt_dir, 'wbg_ckpt')
+wmhbg_ckpt_dir = os.path.join(args.out_dir, 'wmhbg_checkpoints')
+wmhbg_ckpt_prefix = os.path.join(wmhbg_ckpt_dir, 'wmhbg_ckpt')
 wmhbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
                                  enc=enc, gen=gen, crit=crit)
 wmhbg_manager = tf.train.CheckpointManager(wmhbg_ckpt, wmhbg_ckpt_dir, max_to_keep=1)
