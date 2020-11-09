@@ -83,10 +83,10 @@ def train_step_c(batch_x, k):
         gz_z = crit([gz, z], training=True)
         x1_ex1 = crit([x1, ex1], training=True)
         
-        gp1 = gradient_penalty(partial(crit, training=True), x, ex, x1, ex1)
-        gp2 = gradient_penalty(partial(crit, training=True), x1, ex1, z, gz)
+        gp1 = gradient_penalty(partial(crit, training=True), x, ex, z, gz)
+        gp2 = gradient_penalty(partial(crit, training=True), x, ex, ex1, x1)
         
-        c_loss = 0.5 * (W_loss(x_ex, x1_ex1) + GP_WEIGHT * gp1) + 0.5 * (W_loss(x1_ex1, gz_z) + GP_WEIGHT * gp2)
+        c_loss = 0.5 * (W_loss(x_ex, gz_z) + GP_WEIGHT * gp1) + 0.5 * (W_loss(x_ex, x1_ex1) + GP_WEIGHT * gp2)
 
     c_gradient = c_tape.gradient(c_loss, crit.trainable_variables)
     c_optimizer.apply_gradients(zip(c_gradient, crit.trainable_variables))
@@ -108,7 +108,7 @@ def train_step_eg(batch_x, k):
         gz_z = crit([gz, z], training=True)
         x1_ex1 = crit([x1, ex1], training=True)
         
-        eg_loss = - W_loss(x_ex, x1_ex1) - W_loss(x1_ex1, gz_z)
+        eg_loss = - 0.5 * W_loss(x_ex, gz_z) - 0.5 * W_loss(x_ex, x1_ex1)
         
     eg_gradient = eg_tape.gradient(eg_loss, enc.trainable_variables + gen.trainable_variables)
     eg_optimizer.apply_gradients(zip(eg_gradient, enc.trainable_variables + gen.trainable_variables))
