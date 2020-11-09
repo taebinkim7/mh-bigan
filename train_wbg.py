@@ -61,8 +61,8 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 wbg_ckpt_dir = os.path.join(args.out_dir, 'wbg_checkpoints')
 wbg_ckpt_prefix = os.path.join(wbg_ckpt_dir, 'wbg_ckpt')
 wbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
-                              enc=enc, gen=gen, crit=crit)
-
+                               enc=enc, gen=gen, crit=crit)
+wbg_manager = tf.train.CheckpointManager(wbg_ckpt, wbg_ckpt_dir, max_to_keep=1)
 
 # Train steps
 @tf.function
@@ -105,6 +105,8 @@ def train_step_eg(batch_x):
     return eg_loss
   
 def train(dataset, n_epoch):    
+    wbg_ckpt.restore(wbg_manager.latest_checkpoint)
+  
     for epoch in range(n_epoch):
         start = time.time()
         
@@ -131,7 +133,10 @@ def train(dataset, n_epoch):
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
+        
+        wbg_ckpt.step.assign_add(1)
+        wbg_manager.save()
 
 # Train
 train(train_dataset, EPOCHS)
-wbg_ckpt.save(file_prefix = wbg_ckpt_prefix)
+# wbg_ckpt.save(file_prefix = wbg_ckpt_prefix)
