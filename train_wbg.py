@@ -11,7 +11,7 @@ from IPython import display
 
 from model import Encoder, Generator, Critic
 from loss import W_loss
-from util import plot_images, gradient_penalty
+from util import plot_images, mh_update, gradient_penalty
 
 parser = ArgumentParser(description='bigan')
 parser.add_argument('--out_dir', type=str, action='store')
