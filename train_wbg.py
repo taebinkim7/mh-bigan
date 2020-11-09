@@ -134,7 +134,6 @@ def train(dataset, n_epoch):
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
         
-        wbg_ckpt.step.assign_add(1)
         wbg_manager.save()
 
 # Train
