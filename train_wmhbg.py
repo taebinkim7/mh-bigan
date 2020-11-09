@@ -135,13 +135,17 @@ def train(dataset, n_epoch):
             c_loss += c_loss_batch
         
         display.clear_output(wait=True)
-        seed_images = train_images[0:NUM_EXAMPLES]
-        next_images = gen(enc(seed_images, training=False), training=False)
-        plot_images(epoch + 1, seed_images, next_images, args.out_dir, 'reconstruct')
+
+        x0 = train_images[0:NUM_EXAMPLES]
+        ex0 = enc(x0, training=False)
+        gex0 = gen(ex0, training=False)
+        plot_images(epoch + 1, x0, gex0, args.out_dir, 'reconstruct')
         
-        seed_codes = tf.random.normal([2*NUM_EXAMPLES, LATENT_DIM])
-        fake_images = gen(seed_codes, training=False)
-        plot_images(epoch + 1, fake_images[0:NUM_EXAMPLES], fake_images[NUM_EXAMPLES:2*NUM_EXAMPLES], args.out_dir, 'generate')
+        z = tf.random.normal([NUM_EXAMPLES, LATENT_DIM])
+        gz = gen(z, training=False)
+        ex_mh = tf.scan(mh_update, GAMMA * tf.ones(5), ex0)[-1]
+        gex_mh = gen(ex_mh, training=False)
+        plot_images(epoch + 1, gz, gex_mh, args.out_dir, 'generate_mh')
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
