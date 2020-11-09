@@ -30,6 +30,7 @@ NUM_CRITIC = 5
 
 NUM_EXAMPLES = 20
 NUM_CHANNELS = 3
+NUM_STEPS = 10
 
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
@@ -58,15 +59,16 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 
 # Checkpoint
 # wbg_ckpt_dir = './wbg_checkpoints'
-wbg_ckpt_dir = os.path.join(args.out_dir, 'wbg_checkpoints')
-wbg_ckpt_prefix = os.path.join(wbg_ckpt_dir, 'wbg_ckpt')
-wbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
-                              enc=enc, gen=gen, crit=crit)
+wmhbg_ckpt_dir = os.path.join(args.out_dir, 'wbg_checkpoints')
+wmhbg_ckpt_prefix = os.path.join(wmhbg_ckpt_dir, 'wbg_ckpt')
+wmhbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
+                                 enc=enc, gen=gen, crit=crit)
+wmhbg_manager = tf.train.CheckpointManager(wmhbg_ckpt, wmhbg_ckpt_dir, max_to_keep=1)
 
 
 # Train steps
 @tf.function
-def train_step_c(batch_x):
+def train_step_c(batch_x, k):
     with tf.GradientTape() as eg_tape, tf.GradientTape() as c_tape:
         x = batch_x
         ex = enc(x, training=True)
@@ -74,19 +76,24 @@ def train_step_c(batch_x):
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
+        ex1 = tf.scan(mh_update, GAMMA * tf.ones(k), ex)[-1]
+        x1 = gen(ex1, training=True)
+        
         x_ex = crit([x, ex], training=True)
         gz_z = crit([gz, z], training=True)
+        x1_ex1 = disc([x1, ex1], training=True)
         
-        gp = gradient_penalty(partial(crit, training=True), x, ex, z, gz)
+        gp1 = gradient_penalty(partial(crit, training=True), x, ex, x1, ex1)
+        gp2 = gradient_penalty(partial(crit, training=True), x1, ex1, z, gz)
         
-        c_loss = W_loss(x_ex, gz_z) + GP_WEIGHT * gp
+        c_loss = 0.5 * (W_loss(x_ex, x1_ex1) + GP_WEIGHT * gp1) + 0.5 * (W_loss(x1_ex1, gz_z) + GP_WEIGHT * gp2)
 
     c_gradient = c_tape.gradient(c_loss, crit.trainable_variables)
     c_optimizer.apply_gradients(zip(c_gradient, crit.trainable_variables))
     
     return c_loss
 
-def train_step_eg(batch_x):
+def train_step_eg(batch_x, k):
     with tf.GradientTape() as eg_tape:
         x = batch_x
         ex = enc(x, training=True)
@@ -94,10 +101,14 @@ def train_step_eg(batch_x):
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
+        ex1 = tf.scan(mh_update, GAMMA * tf.ones(k), ex)[-1]
+        x1 = gen(ex1, training=True)
+        
         x_ex = crit([x, ex], training=True)
         gz_z = crit([gz, z], training=True)
+        x1_ex1 = disc([x1, ex1], training=True)
         
-        eg_loss = - W_loss(x_ex, gz_z)
+        eg_loss = - W_loss(x_ex, x1_ex1) - W_loss(x1_ex1, gz_z)
         
     eg_gradient = eg_tape.gradient(eg_loss, enc.trainable_variables + gen.trainable_variables)
     eg_optimizer.apply_gradients(zip(eg_gradient, enc.trainable_variables + gen.trainable_variables))
@@ -105,17 +116,20 @@ def train_step_eg(batch_x):
     return eg_loss
   
 def train(dataset, n_epoch):    
+    wmhbg_ckpt.restore(wmhbg_manager.latest_checkpoint)
+    
     for epoch in range(n_epoch):
         start = time.time()
         
         eg_loss, c_loss = 0, 0
         
+        k = np.random.choice(NUM_STEPS) + 1
         for batch in dataset:
           
             for _ in range(NUM_CRITIC):
-                c_loss_batch = train_step_c(batch)
+                c_loss_batch = train_step_c(batch, k)
             
-            eg_loss_batch = train_step_eg(batch)
+            eg_loss_batch = train_step_eg(batch, k)
             
             eg_loss += eg_loss_batch
             c_loss += c_loss_batch
@@ -131,7 +145,10 @@ def train(dataset, n_epoch):
         
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
+        
+        wmhbg_ckpt.step.assign_add(1)
+        wmhbg_manager.save()
 
 # Train
 train(train_dataset, EPOCHS)
-wbg_ckpt.save(file_prefix = wbg_ckpt_prefix)
+# wbg_ckpt.save(file_prefix = wbg_ckpt_prefix)
