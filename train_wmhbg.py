@@ -81,7 +81,7 @@ def train_step_c(batch_x, k):
         
         x_ex = crit([x, ex], training=True)
         gz_z = crit([gz, z], training=True)
-        x1_ex1 = disc([x1, ex1], training=True)
+        x1_ex1 = crit([x1, ex1], training=True)
         
         gp1 = gradient_penalty(partial(crit, training=True), x, ex, x1, ex1)
         gp2 = gradient_penalty(partial(crit, training=True), x1, ex1, z, gz)
@@ -106,7 +106,7 @@ def train_step_eg(batch_x, k):
         
         x_ex = crit([x, ex], training=True)
         gz_z = crit([gz, z], training=True)
-        x1_ex1 = disc([x1, ex1], training=True)
+        x1_ex1 = crit([x1, ex1], training=True)
         
         eg_loss = - W_loss(x_ex, x1_ex1) - W_loss(x1_ex1, gz_z)
         
@@ -146,9 +146,8 @@ def train(dataset, n_epoch):
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
         
-        wmhbg_ckpt.step.assign_add(1)
         wmhbg_manager.save()
 
 # Train
 train(train_dataset, EPOCHS)
-# wbg_ckpt.save(file_prefix = wbg_ckpt_prefix)
+# wmhbg_ckpt.save(file_prefix = wmhbg_ckpt_prefix)
