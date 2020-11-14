@@ -122,10 +122,8 @@ def Discriminator(img_dim, lat_dim):
 def Critic(img_dim, lat_dim):
     inputs_x = tf.keras.Input(shape=img_dim)
     inputs_z = tf.keras.Input(shape=(lat_dim,))
-    
-    x = layers.concatenate([inputs_x, z])
 
-    x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(inputs_x)
     # x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
     x = layers.Conv2D(256, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
