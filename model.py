@@ -80,9 +80,13 @@ def Discriminator(img_dim, lat_dim):
 def Critic(img_dim, lat_dim):
     inputs_x = tf.keras.Input(shape=img_dim)
     inputs_z = tf.keras.Input(shape=(lat_dim,))
+    
+    z = layers.Dense(1024)(inputs_z)
+    z = layers.LeakyReLU()(z)
+    z = layers.Reshape([32, 32, 1])(z)
 
-    z = layers.RepeatVector(1024)(inputs_z)
-    z = layers.Reshape([32, 32, lat_dim])(z)
+#     z = layers.RepeatVector(1024)(inputs_z)
+#     z = layers.Reshape([32, 32, lat_dim])(z)
     
     x = layers.concatenate([inputs_x, z])
 
