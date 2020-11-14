@@ -77,16 +77,51 @@ def Discriminator(img_dim, lat_dim):
     model = tf.keras.Model(inputs=[inputs_x, inputs_z], outputs=outputs)
     return model
 
+# def Critic(img_dim, lat_dim):
+#     inputs_x = tf.keras.Input(shape=img_dim)
+#     inputs_z = tf.keras.Input(shape=(lat_dim,))
+    
+#     z = layers.Dense(1024)(inputs_z)
+#     z = layers.LeakyReLU()(z)
+#     z = layers.Reshape([32, 32, 1])(z)
+
+# #     z = layers.RepeatVector(1024)(inputs_z)
+# #     z = layers.Reshape([32, 32, lat_dim])(z)
+    
+#     x = layers.concatenate([inputs_x, z])
+
+#     x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(x)
+#     # x = layers.BatchNormalization()(x)
+#     x = layers.LeakyReLU()(x)
+#     x = layers.Conv2D(256, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
+# #     x = layers.BatchNormalization()(x)
+#     x = layers.LeakyReLU()(x)
+#     x = layers.Conv2D(512, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
+# #     x = layers.BatchNormalization()(x)
+#     x = layers.LeakyReLU()(x)
+#     x = layers.Dropout(0.2)(x)
+#     x = layers.Conv2D(512, (5, 5), (2, 2), padding='same', use_bias=False, kernel_initializer='he_normal')(x)
+# #     x = layers.BatchNormalization()(x)
+#     x = layers.LeakyReLU()(x)
+#     x = layers.Dropout(0.2)(x)
+#     x = layers.Flatten()(x)
+    
+# #     z = layers.Flatten()(inputs_z)
+# #     z = layers.Dense(512)(z)
+# # #     z = layers.LeakyReLU()(z)
+# #     z = layers.Dropout(0.2)(z)
+
+# #     xz = layers.concatenate([x, z])
+# #     xz = layers.Dense(1024)(xz)
+# #     xz = layers.LeakyReLU()(xz)
+
+#     outputs = layers.Dense(1)(x)
+#     model = tf.keras.Model(inputs=[inputs_x, inputs_z], outputs=outputs)
+#     return model
+
 def Critic(img_dim, lat_dim):
     inputs_x = tf.keras.Input(shape=img_dim)
     inputs_z = tf.keras.Input(shape=(lat_dim,))
-    
-    z = layers.Dense(1024)(inputs_z)
-    z = layers.LeakyReLU()(z)
-    z = layers.Reshape([32, 32, 1])(z)
-
-#     z = layers.RepeatVector(1024)(inputs_z)
-#     z = layers.Reshape([32, 32, lat_dim])(z)
     
     x = layers.concatenate([inputs_x, z])
 
@@ -106,14 +141,24 @@ def Critic(img_dim, lat_dim):
     x = layers.Dropout(0.2)(x)
     x = layers.Flatten()(x)
     
+    x = layers.Dense(512)(x)
+    x = layers.LeakyReLU()(x)
+    x = layers.Dropout(0.2)(x)
+    
 #     z = layers.Flatten()(inputs_z)
 #     z = layers.Dense(512)(z)
 # #     z = layers.LeakyReLU()(z)
 #     z = layers.Dropout(0.2)(z)
 
-#     xz = layers.concatenate([x, z])
-#     xz = layers.Dense(1024)(xz)
-#     xz = layers.LeakyReLU()(xz)
+    xz = layers.concatenate([x, inputs_z])
+    
+    xz = layers.Dense(512)(xz)
+    xz = layers.LeakyReLU()(xz)
+    xz = layers.Dropout(0.2)(xz)
+    
+    xz = layers.Dense(256)(xz)
+    xz = layers.LeakyReLU()(xz)
+    xz = layers.Dropout(0.2)(xz)
 
     outputs = layers.Dense(1)(x)
     model = tf.keras.Model(inputs=[inputs_x, inputs_z], outputs=outputs)
