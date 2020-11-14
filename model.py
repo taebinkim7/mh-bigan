@@ -84,7 +84,7 @@ def Critic(img_dim, lat_dim):
 #     z = layers.RepeatVector(1024)(inputs_z)
 #     z = layers.Reshape([32, 32, lat_dim])(z)
     
-    x = layers.concatenate([inputs_x, z])
+#     x = layers.concatenate([inputs_x, z])
 
     x = layers.Conv2D(128, (5, 5), (2, 2), padding='same', kernel_initializer='he_normal')(x)
     # x = layers.BatchNormalization()(x)
