@@ -104,7 +104,7 @@ def Critic(img_dim, lat_dim):
     
     z = layers.Flatten()(inputs_z)
     z = layers.Dense(512)(z)
-    z = layers.LeakyReLU()(z)
+#     z = layers.LeakyReLU()(z)
     z = layers.Dropout(0.2)(z)
 
     xz = layers.concatenate([x, z])
