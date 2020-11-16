@@ -58,10 +58,10 @@ c_optimizer = tf.keras.optimizers.Adam(1e-4, 0.5, 0.9)
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
 
 # Checkpoint
-# wbg_ckpt_dir = './wbg_checkpoints'
+# wmhbg_ckpt_dir = './wmhbg_checkpoints'
 wmhbg_ckpt_dir = os.path.join(args.out_dir, 'wmhbg_checkpoints')
 wmhbg_ckpt_prefix = os.path.join(wmhbg_ckpt_dir, 'wmhbg_ckpt')
-wmhbg_ckpt = tf.train.Checkpoint(step=tf.Variable(1), eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
+wmhbg_ckpt = tf.train.Checkpoint(step=tf.Variable(0), eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
                                  enc=enc, gen=gen, crit=crit)
 wmhbg_manager = tf.train.CheckpointManager(wmhbg_ckpt, wmhbg_ckpt_dir, max_to_keep=1)
 
@@ -76,7 +76,7 @@ def train_step_c(batch_x, k):
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
-        ex1 = tf.scan(mh_update, GAMMA * tf.ones(3 * k), ex)[-1]
+        ex1 = tf.scan(mh_update, GAMMA * tf.ones(2 * k), ex)[-1]
         x1 = gen(ex1, training=True)
         
         x_ex = crit([x, ex], training=True)
