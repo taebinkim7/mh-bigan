@@ -106,9 +106,9 @@ def Critic(img_dim, lat_dim):
     x = layers.Dropout(0.2)(x)
     x = layers.Flatten()(x)
     
-    x = layers.Dense(512)(x)
-    x = layers.LeakyReLU()(x)
-    x = layers.Dropout(0.2)(x)
+#     x = layers.Dense(512)(x)
+#     x = layers.LeakyReLU()(x)
+#     x = layers.Dropout(0.2)(x)
 
     outputs = layers.Dense(1)(x)
     model = tf.keras.Model(inputs=[inputs_x, inputs_z], outputs=outputs)
