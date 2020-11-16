@@ -30,7 +30,7 @@ GAMMA = 0.1
 
 NUM_EXAMPLES = 20
 NUM_CHANNELS = 3
-NUM_STEPS = 5
+NUM_STEPS = 10
 
 # Create a directory
 makedirs(args.out_dir, exist_ok=True)
@@ -76,7 +76,7 @@ def train_step_c(batch_x, k):
         z = tf.random.normal([x.shape[0], LATENT_DIM])
         gz = gen(z, training=True)
         
-        ex1 = tf.scan(mh_update, GAMMA * tf.ones(2 * k), ex)[-1]
+        ex1 = tf.scan(mh_update, GAMMA * tf.ones(k), ex)[-1]
         x1 = gen(ex1, training=True)
         
         x_ex = crit([x, ex], training=True)
