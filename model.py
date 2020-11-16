@@ -81,9 +81,9 @@ def Critic(img_dim, lat_dim):
     inputs_x = tf.keras.Input(shape=img_dim)
     inputs_z = tf.keras.Input(shape=(lat_dim,))
     
-    z = layers.Dense(1024)(inputs_z)
+    z = layers.Dense(img_dim[0]*img_dim[1])(inputs_z)
     z = layers.LeakyReLU()(z)
-    z = layers.Reshape([32, 32, 1])(z)
+    z = layers.Reshape([img_dim[0], img_dim[1], 1])(z)
 
 #     z = layers.RepeatVector(1024)(inputs_z)
 #     z = layers.Reshape([32, 32, lat_dim])(z)
@@ -106,14 +106,9 @@ def Critic(img_dim, lat_dim):
     x = layers.Dropout(0.2)(x)
     x = layers.Flatten()(x)
     
-#     z = layers.Flatten()(inputs_z)
-#     z = layers.Dense(512)(z)
-# #     z = layers.LeakyReLU()(z)
-#     z = layers.Dropout(0.2)(z)
-
-#     xz = layers.concatenate([x, z])
-#     xz = layers.Dense(1024)(xz)
-#     xz = layers.LeakyReLU()(xz)
+    x = layers.Dense(512)(x)
+    x = layers.LeakyReLU(x)
+    x = layers.Dropout(0.2)(x)
 
     outputs = layers.Dense(1)(x)
     model = tf.keras.Model(inputs=[inputs_x, inputs_z], outputs=outputs)
