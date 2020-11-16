@@ -142,16 +142,16 @@ def train(dataset, n_epoch):
         x0 = train_images[0:NUM_EXAMPLES]
         ex0 = enc(x0, training=False)
         gex0 = gen(ex0, training=False)
-        plot_images(wmhbg_ckpt.step, x0, gex0, args.out_dir, 'reconstruct')
+        plot_images(int(wmhbg_ckpt.step), x0, gex0, args.out_dir, 'reconstruct')
         
         tf.random.set_seed(10)
         z = tf.random.normal([NUM_EXAMPLES, LATENT_DIM])
         gz = gen(z, training=False)
         ex_mh = tf.scan(mh_update, GAMMA * tf.ones(10), ex0)[-1]
         gex_mh = gen(ex_mh, training=False)
-        plot_images(wmhbg_ckpt.step, gz, gex_mh, args.out_dir, 'generate_mh')
+        plot_images(int(wmhbg_ckpt.step), gz, gex_mh, args.out_dir, 'generate_mh')
         
-        print ('Time for epoch {} is {} sec'.format(wmhbg_ckpt.step, time.time()-start))
+        print ('Time for epoch {} is {} sec'.format(int(wmhbg_ckpt.step), time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
 
 # Train
