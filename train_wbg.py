@@ -60,7 +60,7 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(BUFFER_
 # wbg_ckpt_dir = './wbg_checkpoints'
 wbg_ckpt_dir = os.path.join(args.out_dir, 'wbg_checkpoints')
 wbg_ckpt_prefix = os.path.join(wbg_ckpt_dir, 'wbg_ckpt')
-wbg_ckpt = tf.train.Checkpoint(eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
+wbg_ckpt = tf.train.Checkpoint(step=tf.Variable(1), eg_optimizer=eg_optimizer, c_optimizer=c_optimizer,
                                enc=enc, gen=gen, crit=crit)
 wbg_manager = tf.train.CheckpointManager(wbg_ckpt, wbg_ckpt_dir, max_to_keep=1)
 
@@ -122,23 +122,25 @@ def train(dataset, n_epoch):
             eg_loss += eg_loss_batch
             c_loss += c_loss_batch
         
+        wbg_ckpt.step.assign_add(1)
+        wbg_manager.save()
+        
         display.clear_output(wait=True)
         
         x0 = train_images[0:NUM_EXAMPLES]
         ex0 = enc(x0, training=False)
         gex0 = gen(ex0, training=False)
-        plot_images(epoch + 1, x0, gex0, args.out_dir, 'reconstruct')
+        plot_images(wbg_ckpt.step, x0, gex0, args.out_dir, 'reconstruct')
         
+        tf.random.set_seed(10)
         z = tf.random.normal([NUM_EXAMPLES, LATENT_DIM])
         gz = gen(z, training=False)
-        ex_mh = tf.scan(mh_update, GAMMA * tf.ones(5), ex0)[-1]
+        ex_mh = tf.scan(mh_update, GAMMA * tf.ones(10), ex0)[-1]
         gex_mh = gen(ex_mh, training=False)
-        plot_images(epoch + 1, gz, gex_mh, args.out_dir, 'generate_mh')
+        plot_images(wbg_ckpt.step, gz, gex_mh, args.out_dir, 'generate_mh')
         
-        print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
+        print ('Time for epoch {} is {} sec'.format(wbg_ckpt.step, time.time()-start))
         print ('G loss is {} and D loss is {}'.format(eg_loss, c_loss))
-        
-        wbg_manager.save()
 
 # Train
 train(train_dataset, EPOCHS)
