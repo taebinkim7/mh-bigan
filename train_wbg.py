@@ -86,6 +86,7 @@ def train_step_c(batch_x):
     
     return c_loss
 
+@tf.function
 def train_step_eg(batch_x):
     with tf.GradientTape() as eg_tape:
         x = batch_x
