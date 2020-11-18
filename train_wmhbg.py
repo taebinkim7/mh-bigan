@@ -145,7 +145,7 @@ def train(dataset, n_epoch):
         gex0 = gen(ex0, training=False)
         plot_images(int(wmhbg_ckpt.step), x0, gex0, args.out_dir, 'reconstruct')
         
-        tf.random.set_seed(10)
+#         tf.random.set_seed(10)
         z = tf.random.normal([NUM_EXAMPLES, LATENT_DIM])
         gz = gen(z, training=False)
         ex_mh = tf.scan(mh_update, GAMMA * tf.ones(10), ex0)[-1]
