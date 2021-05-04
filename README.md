@@ -1,1 +1,1 @@
-# Metropolis Hastings BiGAN
+# Metropolis Hastings updated BiGAN
